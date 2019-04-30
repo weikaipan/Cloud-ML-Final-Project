@@ -13,6 +13,8 @@ from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH
 from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH, GET_LOSS, MAX_TRAIN_NUM
 from dataprepare import readdata
 
+from pprint import pprint
+
 def binary_accuracy(preds, y):
     """
     Returns accuracy per batch, i.e. if you get 8/10 right, this returns 0.8, NOT 8
@@ -25,14 +27,10 @@ def binary_accuracy(preds, y):
 def train(model, iterator, optimizer, criterion):
     """."""
 
-
 def main(args):
     """Main train driver."""
-    print("Start Training")
-
     train_data, valid_data, test_data = readdata()
-    quit()
-
+    
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if args['max_train_nums'] is not None:
@@ -41,16 +39,19 @@ def main(args):
     del(args['max_train_nums'])
 
     # Data prepare.
-    train_iterator,
-    valid_iterator,
-    test_iterator = data.BucketIterator.splits((train_data,
-                                                valid_data,
-                                                test_data), 
-                                                batch_size=BATCH_SIZE,
-                                                device=device)
-    
+    train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits((train_data,
+                                                                                valid_data,
+                                                                                test_data), 
+                                                                                batch_size=BATCH_SIZE,
+                                                                                device=device)
+    print("Start Training")
+
+    for batch in train_iterator:
+        pprint(batch.text)
+        pprint(batch.text.shape)
+        quit()
     # Optimizer
-    optimizer = optim.SGD(model.parameters(), lr=1e-3)
+    # optimizer = optim.SGD(model.parameters(), lr=)
     # optimizer = optim.Adagrad(model.parameters(),
     #                           lr=learning_rate, lr_decay=0, weight_decay=0)
 
@@ -58,10 +59,10 @@ def main(args):
     #                        lr=learning_rate)
 
     # Criterion
-    criterion = nn.BCEWithLogitsLoss()
+    # criterion = nn.BCEWithLogitsLoss()
 
-    model = model.to(device)
-    criterion = criterion.to(device)
+    # model = model.to(device)
+    # criterion = criterion.to(device)
 
     # Train
     # train(model, train_iterator, optimizer, criterion)
