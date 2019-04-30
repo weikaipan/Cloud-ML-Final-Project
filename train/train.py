@@ -26,11 +26,34 @@ def binary_accuracy(preds, y):
 
 def train(model, iterator, optimizer, criterion):
     """."""
+    epoch_loss = 0
+    epoch_acc = 0
+
+    model.train()
+
+    for batch in iterator:
+
+        optimizer.zero_grad()
+
+        predictions = model(batch.text).squeeze(1)
+
+        loss = criterion(predictions, batch.label)
+
+        acc = binary_accuracy(predictions, batch.label)
+
+        loss.backward()
+
+        optimizer.step()
+
+        epoch_loss += loss.item()
+        epoch_acc += acc.item()
+
+    return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
 def main(args):
     """Main train driver."""
     train_data, valid_data, test_data = readdata()
-    
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if args['max_train_nums'] is not None:
@@ -41,7 +64,7 @@ def main(args):
     # Data prepare.
     train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits((train_data,
                                                                                 valid_data,
-                                                                                test_data), 
+                                                                                test_data),
                                                                                 batch_size=BATCH_SIZE,
                                                                                 device=device)
     print("Start Training")
