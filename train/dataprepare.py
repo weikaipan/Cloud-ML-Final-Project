@@ -29,7 +29,7 @@ def readdata():
     print(f'Number of validation examples: {len(valid_data)}')
     print(f'Number of testing examples: {len(test_data)}')
 
-    return train_data, valid_data, test_data
+    return train_data, valid_data, test_data, text, label
 
 if __name__ == '__main__':
     # for testing purpose.

@@ -10,9 +10,9 @@ from torch.autograd import Variable
 from torch import optim
 from torchtext import data
 from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH
-from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH, GET_LOSS, MAX_TRAIN_NUM
+from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH, GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE
 from dataprepare import readdata
-
+from model import RNN
 from pprint import pprint
 
 def binary_accuracy(preds, y):
@@ -24,48 +24,116 @@ def binary_accuracy(preds, y):
     acc = correct.sum() / len(correct)
     return acc
 
+def test(model, test_iterator, criterion):
+    model.load_state_dict(torch.load('tut1-model.pt'))
+
+    test_loss, test_acc = evaluate(model, test_iterator, criterion)
+    print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc*100:.2f}%')
+    return test_loss, test_acc
+
+def evaluate(model, iterator, criterion):
+    
+    epoch_loss = 0
+    epoch_acc = 0
+    
+    model.eval()
+    
+    with torch.no_grad():
+    
+        for batch in iterator:
+
+            predictions = model(batch.text).squeeze(1)
+            
+            loss = criterion(predictions, batch.label)
+            
+            acc = binary_accuracy(predictions, batch.label)
+
+            epoch_loss += loss.item()
+            epoch_acc += acc.item()
+        
+    return epoch_loss / len(iterator), epoch_acc / len(iterator)
+
 def train(model, iterator, optimizer, criterion):
     """."""
+    epoch_loss = 0
+    epoch_acc = 0
 
-def main(args):
+    model.train()
+    iteration = 1
+    for batch in iterator:
+        
+        optimizer.zero_grad()
+                
+        predictions = model(batch.text).squeeze(1)
+        
+        loss = criterion(predictions, batch.label)
+        
+        acc = binary_accuracy(predictions, batch.label)
+        
+        loss.backward()
+        
+        optimizer.step()
+        
+        epoch_loss += loss.item()
+        epoch_acc += acc.item()
+        print("Iteration {}, Loss = {}".format(iteration, loss.item()))
+        iteration = iteration + 1
+    return epoch_loss / len(iterator), epoch_acc / len(iterator)
+
+def main(embedding_size=EMBEDDING_SIZE,
+         learning_rate=LR,
+         batch_size=BATCH_SIZE,
+         get_loss=GET_LOSS,
+         grad_clip=GRAD_CLIP,
+         epoch=EPOCH,
+         layer_depth=LAYER_DEPTH,
+         save_model=SAVE_MODEL,
+         output_file=OUTPUT_FILE):
+
     """Main train driver."""
-    train_data, valid_data, test_data = readdata()
+    train_data, valid_data, test_data, text, label = readdata()
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    if args['max_train_nums'] is not None:
-        mx_train = args['max_train_nums']
-        train_data = train_data[:mx_train]
-    del(args['max_train_nums'])
-
     # Data prepare.
     train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits((train_data,
-                                                                                valid_data,
-                                                                                test_data), 
-                                                                                batch_size=BATCH_SIZE,
-                                                                                device=device)
+                                                                                             valid_data,
+                                                                                             test_data), 
+                                                                                             batch_size=BATCH_SIZE,
+                                                                                             device=device)
     print("Start Training")
+    model = RNN(len(text.vocab), embedding_size, 256, 1)
+    model = model.to(device)
+    # Criterion
+    criterion = nn.BCEWithLogitsLoss()
+    criterion = criterion.to(device)
 
-    for batch in train_iterator:
-        pprint(batch.text)
-        pprint(batch.text.shape)
-        quit()
     # Optimizer
     # optimizer = optim.SGD(model.parameters(), lr=)
-    # optimizer = optim.Adagrad(model.parameters(),
-    #                           lr=learning_rate, lr_decay=0, weight_decay=0)
+    optimizer = optim.Adagrad(model.parameters(),
+                              lr=learning_rate, lr_decay=0, weight_decay=0)
 
     # optimizer = optim.Adam(model.parameters(),
     #                        lr=learning_rate)
+    best_valid_loss = float('inf')
 
-    # Criterion
-    # criterion = nn.BCEWithLogitsLoss()
+    for epoch in range(epoch):
 
-    # model = model.to(device)
-    # criterion = criterion.to(device)
+        start_time = time.time()
+        
+        train_loss, train_acc = train(model, train_iterator, optimizer, criterion)
+        print(train_loss)
 
-    # Train
-    # train(model, train_iterator, optimizer, criterion)
+        valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)
+    
+        end_time = time.time()
+
+        if valid_loss < best_valid_loss:
+            best_valid_loss = valid_loss
+            torch.save(model.state_dict(), OUTPUT_FILE + '/tut1-model.pt')
+
+    test_loss, test_acc = test(model, test_iterator, criterion)
+    print("Finished Training")
 
 def parse_argument():
     """Hyperparmeter tuning."""
@@ -96,10 +164,10 @@ def parse_argument():
                     type=int,
                     default=GET_LOSS)
 
-    ap.add_argument("-maxtrain",
-                    "--max_train_nums",
-                    type=int,
-                    default=MAX_TRAIN_NUM)
+    # ap.add_argument("-maxtrain",
+    #                 "--max_train_nums",
+    #                 type=int,
+    #                 default=MAX_TRAIN_NUM)
 
     ap.add_argument("-epochsave",
                     "--save_model",
@@ -116,7 +184,7 @@ def parse_argument():
                     default=GRAD_CLIP)
 
     ap.add_argument("-epoch",
-                    "--epoch_time",
+                    "--epoch",
                     type=int,
                     default=EPOCH)
 
@@ -124,4 +192,4 @@ def parse_argument():
 
 if __name__ == '__main__':
     args = parse_argument()
-    main(args)
+    main(**vars(args))
