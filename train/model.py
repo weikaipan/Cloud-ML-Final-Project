@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM
 
 class RNN(nn.Module):
+    # This is our baseline model.
     def __init__(self, vocab_size, hidden_size, embedding_dim=EMBEDDING_SIZE, n_layers=LAYER_DEPTH, output_dim=OUTPUT_DIM):
         super().__init__()
         self.vocab_size = vocab_size

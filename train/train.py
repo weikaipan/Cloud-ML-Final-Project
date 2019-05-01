@@ -28,7 +28,7 @@ def test(model, test_iterator, criterion):
     model.load_state_dict(torch.load('tut1-model.pt'))
 
     test_loss, test_acc = evaluate(model, test_iterator, criterion)
-    print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc*100:.2f}%')
+    print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc))
     return test_loss, test_acc
 
 def evaluate(model, iterator, criterion):
@@ -97,10 +97,10 @@ def main(embedding_size=EMBEDDING_SIZE,
 
     # Data prepare.
     train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits((train_data,
-                                                                                             valid_data,
-                                                                                             test_data), 
-                                                                                             batch_size=BATCH_SIZE,
-                                                                                             device=device)
+                                                                                valid_data,
+                                                                                test_data), 
+                                                                                batch_size=BATCH_SIZE,
+                                                                                device=device)
     print("Start Training")
     model = RNN(len(text.vocab), embedding_size, 256, 1)
     model = model.to(device)
