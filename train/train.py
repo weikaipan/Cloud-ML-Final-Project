@@ -88,7 +88,8 @@ def main(embedding_size=EMBEDDING_SIZE,
          epoch=EPOCH,
          layer_depth=LAYER_DEPTH,
          save_model=SAVE_MODEL,
-         output_file=OUTPUT_FILE):
+         output_file=OUTPUT_FILE,
+         topology='RNN'):
 
     """Main train driver."""
     train_data, valid_data, test_data, text, label = readdata()
@@ -102,7 +103,7 @@ def main(embedding_size=EMBEDDING_SIZE,
                                                                                 batch_size=BATCH_SIZE,
                                                                                 device=device)
     print("Start Training")
-    model = RNN(len(text.vocab), embedding_size, 256, 1)
+    model = RNN(len(text.vocab), embedding_size, embedding_size, 1, topology=topology)
     model = model.to(device)
     # Criterion
     criterion = nn.BCEWithLogitsLoss()
@@ -161,13 +162,11 @@ def parse_argument():
 
     ap.add_argument("-getloss",
                     "--get_loss",
-                    type=int,
                     default=GET_LOSS)
 
-    # ap.add_argument("-maxtrain",
-    #                 "--max_train_nums",
-    #                 type=int,
-    #                 default=MAX_TRAIN_NUM)
+    ap.add_argument("-topology",
+                    "--topology",
+                    default='RNN')
 
     ap.add_argument("-epochsave",
                     "--save_model",
@@ -190,6 +189,14 @@ def parse_argument():
 
     return ap.parse_args()
 
+def print_settings(args):
+    print("---------------")
+    print("Parameter Settings:")
+    for arg in vars(args):
+        print("{} = {}".format(arg, vars(args)[arg]))
+    print("---------------")
+
 if __name__ == '__main__':
     args = parse_argument()
+    print_settings(args)
     main(**vars(args))

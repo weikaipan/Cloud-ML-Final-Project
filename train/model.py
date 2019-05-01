@@ -9,13 +9,23 @@ from configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM
 
 class RNN(nn.Module):
     # This is our baseline model.
-    def __init__(self, vocab_size, hidden_size, embedding_dim=EMBEDDING_SIZE, n_layers=LAYER_DEPTH, output_dim=OUTPUT_DIM):
+    def __init__(self,
+                 vocab_size,
+                 hidden_size,
+                 embedding_dim=EMBEDDING_SIZE,
+                 n_layers=LAYER_DEPTH,
+                 output_dim=OUTPUT_DIM,
+                 topology='RNN'):
         super().__init__()
         self.vocab_size = vocab_size
         self.hidden_size = hidden_size
         self.n_layers = n_layers     
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.rnn = nn.RNN(embedding_dim, hidden_size)
+        self.topology = topology
+        if self.topology == 'RNN':
+            self.rnn = nn.RNN(embedding_dim, hidden_size)
+        elif self.topology == 'GRU':
+            self.rnn = nn.GRU(embedding_dim, hidden_size)
         self.fc = nn.Linear(hidden_size, output_dim)
     
     def forward(self, sequence):
@@ -23,13 +33,8 @@ class RNN(nn.Module):
         input is a one-hot vector.
         (seq_len, batch_size)
         """
-        try:
-            embeds = self.embedding(sequence)
-        except Exception as e:
-            print(sequence)
-            print(e)
-            quit()
         # seq_len, batch_size, embedding_dim
+        embeds = self.embedding(sequence)
         # seq_len, batch, input_size
         
         output, hidden = self.rnn(embeds)
@@ -51,13 +56,14 @@ class RNN(nn.Module):
 
 class GRU(nn.Module):
     """."""
-    def __init__(self, hidden_size, embedding_layer, n_layers=LAYER_DEPTH):
+    def __init__(self, vocab_size, hidden_size, embedding_dim=EMBEDDING_SIZE, n_layers=LAYER_DEPTH, output_dim=OUTPUT_DIM):
         super().__init__()
         self.n_layers = n_layers
         self.hidden_size = hidden_size
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.gru = nn.GRU(hidden_size, hidden_size, num_layers=self.n_layers)
 
-    def forward(self, inputs):
+    def forward(self, sequence):
         # input is of size (seq_len, n_batch)
 
         # gru needs (seq_len, n_batch, emb_dim)
