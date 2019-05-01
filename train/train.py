@@ -25,7 +25,7 @@ def binary_accuracy(preds, y):
     return acc
 
 def test(model, test_iterator, criterion):
-    model.load_state_dict(torch.load('tut1-model.pt'))
+    model.load_state_dict(torch.load(OUTPUT_FILE + '/tut1-model.pt'))
 
     test_loss, test_acc = evaluate(model, test_iterator, criterion)
     print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc))

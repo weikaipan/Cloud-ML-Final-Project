@@ -36,7 +36,6 @@ class RNN(nn.Module):
         # output: seq_len, batch, num_directions * hidden_size
         # hidden: num_layers * num_directions, batch, hidden_size (last layer)
         out = self.fc(hidden.squeeze(0))
-        print("out shape {}".format(out.shape))
         return out
 
     def initHidden(self, batch_size):
