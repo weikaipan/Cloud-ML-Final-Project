@@ -12,11 +12,11 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch import optim
 from torchtext import data
-from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH
+from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
 from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
 from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
 from dataprepare import readdata
-from model import RNN, BaseLine
+from model import RNN, BaseLine, CNN
 from pprint import pprint
 from utils import epoch_time
 
@@ -73,7 +73,7 @@ def evaluate(model, iterator, criterion, stop=None, packed=False):
 
             if stop is not None:
                 break
-        
+
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
 def train(model, iterator, optimizer, criterion, stop=None, packed=False):
@@ -110,6 +110,7 @@ def train(model, iterator, optimizer, criterion, stop=None, packed=False):
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
 def main(embedding_size=EMBEDDING_SIZE,
+         n_filters=CNN_N_FILTERS,
          learning_rate=LR,
          batch_size=BATCH_SIZE,
          get_loss=GET_LOSS,
@@ -126,21 +127,24 @@ def main(embedding_size=EMBEDDING_SIZE,
 
     """Main train driver."""
     train_data, valid_data, test_data, text, label = readdata(packed=packed, pretrain=pretrain)
-    
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Data prepare.
     train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits((train_data,
                                                                                 valid_data,
-                                                                                test_data), 
+                                                                                test_data),
                                                                                 sort_within_batch=True,
                                                                                 batch_size=BATCH_SIZE,
                                                                                 device=device)
     print("Start Training")
     if topology == 'BASELINE':
         model = BaseLine(len(text.vocab), embedding_size, embedding_size, 1)
+    elif topology == 'CNN':
+        model = CNN(len(text.vocab), [3,4,5], topology=topology)
     else:
         model = RNN(len(text.vocab), embedding_size, embedding_size, 1, topology=topology)
+
     model = model.to(device)
     # Criterion
     criterion = nn.BCEWithLogitsLoss()
@@ -154,19 +158,19 @@ def main(embedding_size=EMBEDDING_SIZE,
     for epoch in range(epoch):
 
         start_time = time.time()
-        
+
         train_loss, train_acc = train(model, train_iterator, optimizer, criterion, stop=stop, packed=packed)
 
         valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, stop=stop, packed=packed)
-    
+
         end_time = time.time()
-        
+
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
-        
+
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss
             torch.save(model.state_dict(), OUTPUT_FILE + '/tut1-model.pt')
-        
+
         print('Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs))
         print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100))
         print('Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100))
@@ -236,12 +240,12 @@ def parse_argument():
     ap.add_argument("-optim",
                     "--optim_option",
                     default=OPTIM)
-    
+
     ap.add_argument("-stop",
                     "--stop",
                     type=bool,
                     default=None)
-    
+
     ap.add_argument("-packed",
                     "--packed",
                     type=bool,
