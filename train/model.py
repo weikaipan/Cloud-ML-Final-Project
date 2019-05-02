@@ -90,8 +90,8 @@ class RNN(nn.Module):
         
         # packed sequence object, all rnn modules accept this type
         output, hidden = self.rnn(packed_embeds)
-        
         # output: seq_len, batch, num_directions * hidden_size
         # hidden: num_layers * num_directions, batch, hidden_size (last layer)
+        hidden = self.dropout(hidden)
         out = self.fc(hidden.squeeze(0))
         return out
