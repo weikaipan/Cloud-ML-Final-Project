@@ -7,9 +7,9 @@ RUN conda install -y pytorch torchvision -c pytorch
 WORKDIR /tensorflow-mnist
 ADD requirements.txt  requirements.txt
 RUN pip install -r requirements.txt
+RUN python -m spacy download en
 
 ADD ./train/  /tensorflow-mnist/train
-RUN python -m spacy download en
 RUN mkdir /tensorflow-mnist/models
 
 ENV RESULT_DIR='/tensorflow-mnist'
