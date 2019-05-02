@@ -26,4 +26,5 @@ docker run cloudfinal python train/train.py -stop True -topology BASELINE
     -getloss GET_LOSS,        print out average loss every `GET_LOSS` iterations.
     -epochsave SAVE_MODEL,    save the model every `SAVE_MODEL` epochs.
     -outputfile OUTPUT_FILE,  root folder for saving trained models
+    -maxvocabsize MAX_VOCAB_SIZE, 25000 by default
 ```

@@ -16,9 +16,9 @@ def readdata(packed=False, pretrain=False, max_vocab_size=MAX_VOCAB_SIZE):
     torch.backends.cudnn.deterministic = True
     # add packed padded sequence.
     if packed:
-        text = data.Field(tokenize='spacy', include_lengths=True)
+        text = data.Field(include_lengths=True)
     else:
-        text = data.Field(tokenize='spacy')
+        text = data.Field()
     label = data.LabelField(dtype=torch.float)
 
     train_data, test_data = datasets.IMDB.splits(text, label)

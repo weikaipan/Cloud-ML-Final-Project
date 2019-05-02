@@ -91,7 +91,6 @@ def train(model, iterator, optimizer, criterion, stop=False, packed=False):
             text, text_len = batch.text
             predictions = model(text, text_len).squeeze(1)
         else:
-            print('CNN is using')
             predictions = model(batch.text).squeeze(1)
 
         loss = criterion(predictions, batch.label)
