@@ -15,8 +15,7 @@ class BaseLine(nn.Module):
                  embedding_dim=EMBEDDING_SIZE,
                  n_layers=LAYER_DEPTH,
                  dropout=DROPOUT,
-                 output_dim=OUTPUT_DIM,
-                 topology='RNN'):
+                 output_dim=OUTPUT_DIM):
         super().__init__()
         self.vocab_size = vocab_size
         self.hidden_size = hidden_size
@@ -30,9 +29,6 @@ class BaseLine(nn.Module):
         
         # Linear layer.
         self.fc = nn.Linear(hidden_size, output_dim)
-        
-        # Regularization
-        self.dropout = nn.Dropout(dropout)
     
     def forward(self, sequence):
         """
@@ -82,7 +78,7 @@ class RNN(nn.Module):
     
     def forward(self, sequence, text_len):
         """
-        input is a one-hot vector.
+        sequence is a one-hot vector.
         (seq_len, batch_size)
         """
         # sequence: seq_len, batch_size, embedding_dim
@@ -91,9 +87,8 @@ class RNN(nn.Module):
         print(embeds.shape)
         # 
         packed_embeds = nn.utils.rnn.pack_padded_sequence(embeds, text_len)
-        print("packed embedding shape")
-        print(packed_embeds.shape)
-        # seq_len, batch, input_size
+        
+        # packed sequence object, all rnn modules accept this type
         output, hidden = self.rnn(packed_embeds)
         
         # output: seq_len, batch, num_directions * hidden_size

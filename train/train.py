@@ -16,7 +16,7 @@ from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH
 from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
 from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
 from dataprepare import readdata
-from model import RNN
+from model import RNN, BaseLine
 from pprint import pprint
 from utils import epoch_time
 
@@ -29,10 +29,10 @@ def binary_accuracy(preds, y):
     acc = correct.sum() / len(correct)
     return acc
 
-def pick_optimizer(optim, parameters, learning_rate):
-    if optim == 'Adam':
+def pick_optimizer(optim_option, parameters, learning_rate):
+    if optim_option == 'Adam':
         return optim.Adam(parameters, lr=learning_rate)
-    elif optim == 'Adagrad':
+    elif optim_option == 'Adagrad':
         return optim.Adagrad(parameters,
                              lr=learning_rate,
                              lr_decay=0,
@@ -40,14 +40,14 @@ def pick_optimizer(optim, parameters, learning_rate):
     else:
         return optim.SGD(parameters, lr=learning_rate)
 
-def test(model, test_iterator, criterion):
+def test(model, test_iterator, criterion, stop=None, packed=False):
     model.load_state_dict(torch.load(OUTPUT_FILE + '/tut1-model.pt'))
 
-    test_loss, test_acc = evaluate(model, test_iterator, criterion)
-    print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc))
+    test_loss, test_acc = evaluate(model, test_iterator, criterion, stop=stop, packed=packed)
+    print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc * 100))
     return test_loss, test_acc
 
-def evaluate(model, iterator, criterion):
+def evaluate(model, iterator, criterion, stop=None, packed=False):
     
     epoch_loss = 0
     epoch_acc = 0
@@ -58,7 +58,11 @@ def evaluate(model, iterator, criterion):
     
         for batch in iterator:
 
-            predictions = model(batch.text).squeeze(1)
+            if packed:
+                text, text_len = batch.text
+                predictions = model(text, text_len).squeeze(1)
+            else:
+                predictions = model(batch.text).squeeze(1)
             
             loss = criterion(predictions, batch.label)
             
@@ -67,9 +71,12 @@ def evaluate(model, iterator, criterion):
             epoch_loss += loss.item()
             epoch_acc += acc.item()
         
+            if stop is not None:
+                break
+        
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
-def train(model, iterator, optimizer, criterion):
+def train(model, iterator, optimizer, criterion, stop=None, packed=False):
     """."""
     epoch_loss = 0
     epoch_acc = 0
@@ -79,10 +86,12 @@ def train(model, iterator, optimizer, criterion):
         
         optimizer.zero_grad()
         
-        text, text_len = batch.text
-        
         # use pack padded sequence.
-        predictions = model(text, text_len).squeeze(1)
+        if packed:
+            text, text_len = batch.text
+            predictions = model(text, text_len).squeeze(1)
+        else:
+            predictions = model(batch.text).squeeze(1)
         
         loss = criterion(predictions, batch.label)
         
@@ -94,6 +103,9 @@ def train(model, iterator, optimizer, criterion):
         
         epoch_loss += loss.item()
         epoch_acc += acc.item()
+
+        if stop is not None:
+            break
 
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
@@ -107,11 +119,13 @@ def main(embedding_size=EMBEDDING_SIZE,
          save_model=SAVE_MODEL,
          output_file=OUTPUT_FILE,
          pretrain=PRETRAIN,
-         optim=OPTIM,
-         topology='RNN'):
+         optim_option=OPTIM,
+         topology='RNN',
+         stop=None,
+         packed=False):
 
     """Main train driver."""
-    train_data, valid_data, test_data, text, label = readdata(pretrain=pretrain)
+    train_data, valid_data, test_data, text, label = readdata(packed=packed, pretrain=pretrain)
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -123,13 +137,16 @@ def main(embedding_size=EMBEDDING_SIZE,
                                                                                 batch_size=BATCH_SIZE,
                                                                                 device=device)
     print("Start Training")
-    model = RNN(len(text.vocab), embedding_size, embedding_size, 1, topology=topology)
+    if topology == 'BASELINE':
+        model = BaseLine(len(text.vocab), embedding_size, embedding_size, 1)
+    else:
+        model = RNN(len(text.vocab), embedding_size, embedding_size, 1, topology=topology)
     model = model.to(device)
     # Criterion
     criterion = nn.BCEWithLogitsLoss()
     criterion = criterion.to(device)
 
-    optimizer = pick_optimizer(optim, model.parameters(), learning_rate)
+    optimizer = pick_optimizer(optim_option, model.parameters(), learning_rate)
 
     # Training
     best_valid_loss = float('inf')
@@ -138,10 +155,10 @@ def main(embedding_size=EMBEDDING_SIZE,
 
         start_time = time.time()
         
-        train_loss, train_acc = train(model, train_iterator, optimizer, criterion)
+        train_loss, train_acc = train(model, train_iterator, optimizer, criterion, stop=stop, packed=packed)
         print(train_loss)
 
-        valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)
+        valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, stop=stop, packed=packed)
     
         end_time = time.time()
         
@@ -152,10 +169,13 @@ def main(embedding_size=EMBEDDING_SIZE,
             torch.save(model.state_dict(), OUTPUT_FILE + '/tut1-model.pt')
         
         print('Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs))
-        print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc))
-        print('Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc))
+        print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100))
+        print('Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100))
 
-    test_loss, test_acc = test(model, test_iterator, criterion)
+        if stop is not None:
+            break
+
+    test_loss, test_acc = test(model, test_iterator, criterion, stop=stop, packed=packed)
     print("Finished Training")
 
 def parse_argument():
@@ -215,8 +235,18 @@ def parse_argument():
                     default=EPOCH)
 
     ap.add_argument("-optim",
-                    "--optim",
+                    "--optim_option",
                     default=OPTIM)
+    
+    ap.add_argument("-stop",
+                    "--stop",
+                    type=bool,
+                    default=None)
+    
+    ap.add_argument("-packed",
+                    "--packed",
+                    type=bool,
+                    default=False)
 
     return ap.parse_args()
 

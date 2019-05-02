@@ -7,7 +7,7 @@ from torchtext import datasets
 from configs import MAX_VOCAB_SIZE
 from utils import epoch_time
 
-def readdata(pretrain=False):
+def readdata(packed=False, pretrain=False):
     print("Reading Data")
     start_time = time.time()
     SEED = 1234
@@ -15,7 +15,10 @@ def readdata(pretrain=False):
     torch.manual_seed(SEED)
     torch.backends.cudnn.deterministic = True
     # add packed padded sequence.
-    text = data.Field(tokenize='spacy', include_lengths=True)
+    if packed:
+        text = data.Field(tokenize='spacy', include_lengths=True)
+    else:
+        text = data.Field(tokenize='spacy')
     label = data.LabelField(dtype=torch.float)
 
     train_data, test_data = datasets.IMDB.splits(text, label)
@@ -25,6 +28,7 @@ def readdata(pretrain=False):
         text.build_vocab(train_data, max_size=MAX_VOCAB_SIZE, vectors="glove.6B.100d", unk_init=torch.Tensor.normal_)
     else:
         text.build_vocab(train_data, max_size=MAX_VOCAB_SIZE)
+
     label.build_vocab(train_data)
     
     end_time = time.time()
