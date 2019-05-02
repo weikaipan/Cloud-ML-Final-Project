@@ -40,14 +40,14 @@ def pick_optimizer(optim_option, parameters, learning_rate):
     else:
         return optim.SGD(parameters, lr=learning_rate)
 
-def test(model, test_iterator, criterion, stop=None, packed=False):
+def test(model, test_iterator, criterion, stop=False, packed=False):
     model.load_state_dict(torch.load(OUTPUT_FILE + '/tut1-model.pt'))
 
     test_loss, test_acc = evaluate(model, test_iterator, criterion, stop=stop, packed=packed)
     print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc * 100))
     return test_loss, test_acc
 
-def evaluate(model, iterator, criterion, stop=None, packed=False):
+def evaluate(model, iterator, criterion, stop=False, packed=False):
 
     epoch_loss = 0
     epoch_acc = 0
@@ -71,12 +71,12 @@ def evaluate(model, iterator, criterion, stop=None, packed=False):
             epoch_loss += loss.item()
             epoch_acc += acc.item()
 
-            if stop is not None:
+            if stop:
                 break
 
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
-def train(model, iterator, optimizer, criterion, stop=None, packed=False):
+def train(model, iterator, optimizer, criterion, stop=False, packed=False):
     """."""
     epoch_loss = 0
     epoch_acc = 0
@@ -91,6 +91,7 @@ def train(model, iterator, optimizer, criterion, stop=None, packed=False):
             text, text_len = batch.text
             predictions = model(text, text_len).squeeze(1)
         else:
+            print('CNN is using')
             predictions = model(batch.text).squeeze(1)
 
         loss = criterion(predictions, batch.label)
@@ -104,7 +105,7 @@ def train(model, iterator, optimizer, criterion, stop=None, packed=False):
         epoch_loss += loss.item()
         epoch_acc += acc.item()
 
-        if stop is not None:
+        if stop:
             break
 
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
@@ -122,11 +123,14 @@ def main(embedding_size=EMBEDDING_SIZE,
          pretrain=PRETRAIN,
          optim_option=OPTIM,
          topology='RNN',
-         stop=None,
-         packed=False):
+         stop=False,
+         packed=False,
+         max_vocab_size=MAX_VOCAB_SIZE):
 
     """Main train driver."""
-    train_data, valid_data, test_data, text, label = readdata(packed=packed, pretrain=pretrain)
+    train_data, valid_data, test_data, text, label = readdata(packed=packed,
+                                                              pretrain=pretrain,
+                                                              max_vocab_size=max_vocab_size)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -175,7 +179,7 @@ def main(embedding_size=EMBEDDING_SIZE,
         print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100))
         print('Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100))
 
-        if stop is not None:
+        if stop:
             break
 
     test_loss, test_acc = test(model, test_iterator, criterion, stop=stop, packed=packed)
@@ -244,11 +248,16 @@ def parse_argument():
     ap.add_argument("-stop",
                     "--stop",
                     type=bool,
-                    default=None)
+                    default=False)
 
     ap.add_argument("-packed",
                     "--packed",
                     type=bool,
+                    default=False)
+
+    ap.add_argument("-maxvocabsize",
+                    "--max_vocab_size",
+                    type=int,
                     default=False)
 
     return ap.parse_args()

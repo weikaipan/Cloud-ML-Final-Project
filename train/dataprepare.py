@@ -7,7 +7,7 @@ from torchtext import datasets
 from configs import MAX_VOCAB_SIZE
 from utils import epoch_time
 
-def readdata(packed=False, pretrain=False):
+def readdata(packed=False, pretrain=False, max_vocab_size=MAX_VOCAB_SIZE):
     print("Reading Data")
     start_time = time.time()
     SEED = 1234
@@ -25,9 +25,11 @@ def readdata(packed=False, pretrain=False):
     train_data, valid_data = train_data.split(random_state=random.seed(SEED))
     if pretrain:
         # use glove, initialize unknown words as random tensor, using gaussian distribution.
-        text.build_vocab(train_data, max_size=MAX_VOCAB_SIZE, vectors="glove.6B.100d", unk_init=torch.Tensor.normal_)
+        text.build_vocab(train_data, max_size=max_vocab_size,
+                                     vectors="glove.6B.100d",
+                                     unk_init=torch.Tensor.normal_)
     else:
-        text.build_vocab(train_data, max_size=MAX_VOCAB_SIZE)
+        text.build_vocab(train_data, max_size=max_vocab_size)
 
     label.build_vocab(train_data)
     
