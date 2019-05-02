@@ -14,5 +14,6 @@ GET_LOSS=1
 MAX_TRAIN_NUM=None
 DROPOUT=0.6
 OUTPUT_DIM=1
-
+PRETRAIN=False
+OPTIM='Adam'
 use_cuda=True
