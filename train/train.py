@@ -48,14 +48,14 @@ def test(model, test_iterator, criterion, stop=None, packed=False):
     return test_loss, test_acc
 
 def evaluate(model, iterator, criterion, stop=None, packed=False):
-    
+
     epoch_loss = 0
     epoch_acc = 0
-    
+
     model.eval()
-    
+
     with torch.no_grad():
-    
+
         for batch in iterator:
 
             if packed:
@@ -63,14 +63,14 @@ def evaluate(model, iterator, criterion, stop=None, packed=False):
                 predictions = model(text, text_len).squeeze(1)
             else:
                 predictions = model(batch.text).squeeze(1)
-            
+
             loss = criterion(predictions, batch.label)
-            
+
             acc = binary_accuracy(predictions, batch.label)
 
             epoch_loss += loss.item()
             epoch_acc += acc.item()
-        
+
             if stop is not None:
                 break
         
@@ -83,24 +83,24 @@ def train(model, iterator, optimizer, criterion, stop=None, packed=False):
 
     model.train()
     for batch in iterator:
-        
+
         optimizer.zero_grad()
-        
+
         # use pack padded sequence.
         if packed:
             text, text_len = batch.text
             predictions = model(text, text_len).squeeze(1)
         else:
             predictions = model(batch.text).squeeze(1)
-        
+
         loss = criterion(predictions, batch.label)
-        
+
         acc = binary_accuracy(predictions, batch.label)
-        
+
         loss.backward()
-        
+
         optimizer.step()
-        
+
         epoch_loss += loss.item()
         epoch_acc += acc.item()
 
@@ -156,7 +156,6 @@ def main(embedding_size=EMBEDDING_SIZE,
         start_time = time.time()
         
         train_loss, train_acc = train(model, train_iterator, optimizer, criterion, stop=stop, packed=packed)
-        print(train_loss)
 
         valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, stop=stop, packed=packed)
     
