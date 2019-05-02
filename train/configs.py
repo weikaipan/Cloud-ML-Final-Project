@@ -1,5 +1,5 @@
 DATA_ROOT='../aclImdb'
-MAX_VOCAB_SIZE=20
+MAX_VOCAB_SIZE=25000
 
 # Default parameters
 EMBEDDING_SIZE=600
