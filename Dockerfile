@@ -1,18 +1,17 @@
 # Start with a Linux micro-container to keep the image tiny
-FROM frolvlad/alpine-miniconda2
+FROM continuumio/miniconda3
 
-# Document who is responsible for this image
-MAINTAINER Yonghao Liu
+MAINTAINER YL
 RUN conda install -y pytorch torchvision -c pytorch
 
-ADD ./train/  /tensorflow-mnist
-ADD requirements.txt  requirements.txt
-
-RUN pip install -r requirements.txt
-
 WORKDIR /tensorflow-mnist
-ENV RESULT_DIR='./tensorflow-mnist'
+ADD ./train/  /tensorflow-mnist
+ADD requirement.txt  requirement.txt
 
+RUN pip install -r requirement.txt
+RUN python -m spacy download en
+
+ENV RESULT_DIR='/tensorflow-mnist'
 
 
 CMD ["python", "train.py"]
