@@ -12,13 +12,13 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch import optim
 from torchtext import data
-from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
-from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
-from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
-from dataprepare import readdata
-from model import RNN, BaseLine, CNN
+from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
+from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
+from train.dataprepare import readdata
+from train.model import RNN, BaseLine, CNN
 from pprint import pprint
-from utils import epoch_time
+from train.utils import epoch_time
 
 def binary_accuracy(preds, y):
     """

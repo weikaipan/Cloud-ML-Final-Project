@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 
-from configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
+from train.configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
 
 class BaseLine(nn.Module):
     # This is our baseline model.

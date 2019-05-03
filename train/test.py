@@ -2,11 +2,11 @@ import torch
 import torch.nn as nn
 
 from torchtext import data
-from train import test
-from dataprepare import readdata
-from model import RNN
+from train.train import test
+from train.dataprepare import readdata
+from train.model import RNN
 from torch import optim
-from configs import BATCH_SIZE, EMBEDDING_SIZE
+from train.configs import BATCH_SIZE, EMBEDDING_SIZE
 
 def main():
     train_data, valid_data, test_data, text, label = readdata()

@@ -23,17 +23,19 @@
         </div>
 
         <div class="col-md-12" id="form_data">
-          Create, Retrieve, Update, and Delete a Inventory:
           <div class="well">
             <div class="form-horizontal">
               <div class="form-group">
-                <label class="control-label col-sm-2" for="inventory_id">Inventory ID:</label>
-                <div class="col-sm-6">
-                  <input type="text" class="form-control" id="inventory_id" placeholder="Enter ID of Inventory">
+                <div class="col-sm-4">
+                  <select class="btn btn-danger" id="model">
+                    <option selected>Choose Your Model</option>
+                    <option value="1">Baseline</option>
+                    <option value="2">RNN</option>
+                    <option value="2">CNN</option>
+                  </select>   
                 </div>
                 <div class="col-sm-4">
-                  <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
-                  <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+                  <button type="submit" class="btn btn-danger" id="train-btn">Start Training</button>
                 </div>
               </div>
             </div> <!-- form div -->
@@ -41,7 +43,7 @@
             <div class="form-horizontal">
               <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                  <button type="submit" class="btn btn-primary" id="search-btn">Get Logs</button>
+                  <button type="submit" class="btn btn-primary" id="search-btn">Retrieve Logs</button>
                 </div>
               </div>
           </div> <!-- form div -->
