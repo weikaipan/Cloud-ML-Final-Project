@@ -11,7 +11,9 @@ RUN python -m spacy download en
 
 ADD ./train/  /tensorflow-mnist/train
 RUN mkdir /tensorflow-mnist/models
+RUN mkdir /tensorflow-mnist/logs
+RUN touch server.log
 
 ENV RESULT_DIR='/tensorflow-mnist'
 
-CMD ["python", "train/train.py"]
+CMD ["python train/train.py -stop True -topology BASELINE > server.log 2>&1"]
