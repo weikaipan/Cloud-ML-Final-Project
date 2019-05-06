@@ -22,7 +22,7 @@ def deploy_model(sentence="This film is terrible",
                  pretrain=False,
                  max_vocab_size=MAX_VOCAB_SIZE,
                  embedding_size=EMBEDDING_SIZE):
-    print("Input query {}".format(sentence))
+    print("Input query: '{}'".format(sentence))
     train_data, valid_data, test_data, text, label = readdata(packed=packed,
                                                               pretrain=pretrain,
                                                               max_vocab_size=max_vocab_size)

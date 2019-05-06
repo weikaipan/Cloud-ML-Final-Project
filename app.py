@@ -19,6 +19,14 @@ app = Flask(__name__)
 def default_route():
     return app.send_static_file('index.html')
 
+@app.route('/tasks')
+def tasks():
+    return app.send_static_file('tasks.html')
+
+@app.route('/product')
+def product():
+    return app.send_static_file('product.html')
+
 @app.route('/logs2', methods=['GET'])
 def showLogs2():
     with open(os.path.join(APP_STATIC, 'dummyFile')) as f:
