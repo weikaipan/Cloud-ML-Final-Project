@@ -52,7 +52,10 @@ def showLogs():
 
 @app.route('/test', methods=['GET'])
 def test():
-    ret = { 'sentiment': deploy_model() }
+    if request.args['sentence'] is None:
+        ret = { 'sentiment': deploy_model() }
+    else:
+        ret = { 'sentiment': deploy_model(sentence=request.args['sentence']) }
     return jsonify(ret)
 
 

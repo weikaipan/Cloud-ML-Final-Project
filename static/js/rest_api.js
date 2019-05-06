@@ -36,17 +36,17 @@ $(function () {
         document.getElementById('text-loader').style.display = "block";
         console.log('clicked');
         console.log($('#sentence').val());
-        // let sentence = $('#sentence').val();
-        // const data = {
-        //     "sentence": sentence,
-        // };
-        // console.log(JSON.stringify(data));
+        let sentence = $('#sentence').val();
+        const data = {
+            "sentence": sentence,
+        };
+        console.log(JSON.stringify(data));
 
-        let ajax = $.ajax({
-            type: "GET",
+        let ajax = $.get({
             url: "/test",
-            contentType: "application/json",
-            // data: JSON.stringify(data)
+            data: {
+                "sentence": sentence,
+            }
         });
 
         ajax.done(function (res) {
