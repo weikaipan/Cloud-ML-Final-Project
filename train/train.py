@@ -20,6 +20,14 @@ from train.model import RNN, BaseLine, CNN
 from pprint import pprint
 from train.utils import epoch_time
 
+# from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
+# from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+# from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
+# from dataprepare import readdata
+# from model import RNN, BaseLine, CNN
+# from pprint import pprint
+# from utils import epoch_time
+
 def binary_accuracy(preds, y):
     """
     Returns accuracy per batch, i.e. if you get 8/10 right, this returns 0.8, NOT 8
@@ -121,7 +129,7 @@ def main(embedding_size=EMBEDDING_SIZE,
          output_file=OUTPUT_FILE,
          pretrain=PRETRAIN,
          optim_option=OPTIM,
-         topology='RNN',
+         topology='BASELINE',
          stop=False,
          packed=False,
          max_vocab_size=MAX_VOCAB_SIZE):
@@ -214,7 +222,7 @@ def parse_argument():
 
     ap.add_argument("-topology",
                     "--topology",
-                    default='RNN')
+                    default='BASELINE')
 
     ap.add_argument("-epochsave",
                     "--save_model",
@@ -257,7 +265,7 @@ def parse_argument():
     ap.add_argument("-maxvocabsize",
                     "--max_vocab_size",
                     type=int,
-                    default=False)
+                    default=25000)
 
     return ap.parse_args()
 

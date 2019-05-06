@@ -6,6 +6,8 @@ from torchtext import data
 from torchtext import datasets
 from train.configs import MAX_VOCAB_SIZE
 from train.utils import epoch_time
+# from configs import MAX_VOCAB_SIZE
+# from utils import epoch_time
 
 def readdata(packed=False, pretrain=False, max_vocab_size=MAX_VOCAB_SIZE):
     print("Reading Data")

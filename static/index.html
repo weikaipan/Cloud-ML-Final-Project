@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="static/css/blue_bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
     <script type="text/javascript" src = "static/js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="static/js/rest_api.js"></script>
   </head>
@@ -51,6 +52,17 @@
 
         <!-- Search Results -->
         <div class="table-responsive col-md-12" id="search_results">
+        </div>
+
+        <div>
+          <input type="text" name="sentence" id="sentence" />
+          <button type="button" class="btn btn-primary" id="sentence-btn">Check Its Sentiment!</button>
+          <div>
+            <div class="loader" id="score-loader">
+            </div>
+            <div id="text-loader">Hey, I am evaluating its sentiment score!</div>
+            <h3>Sentiment Score is: <p id="score"></p></h3>
+          </div>
         </div>
 
         <footer>

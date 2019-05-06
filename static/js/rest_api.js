@@ -30,7 +30,38 @@ $(function () {
     }
 
 
+    $("#sentence-btn").click(function () {
+        console.log(document.getElementById('score-loader'));
+        document.getElementById('score-loader').style.display = "block";
+        document.getElementById('text-loader').style.display = "block";
+        console.log('clicked');
+        console.log($('#sentence').val());
+        // let sentence = $('#sentence').val();
+        // const data = {
+        //     "sentence": sentence,
+        // };
+        // console.log(JSON.stringify(data));
 
+        let ajax = $.ajax({
+            type: "GET",
+            url: "/test",
+            contentType: "application/json",
+            // data: JSON.stringify(data)
+        });
+
+        ajax.done(function (res) {
+            console.log(res);
+            document.getElementById('score-loader').style.display = "none";
+            document.getElementById('text-loader').style.display = "none";
+            $('#score').text(res.sentiment);
+        });
+
+        ajax.fail(function(res){
+            document.getElementById('score-loader').style.display = "none";
+            document.getElementById('text-loader').style.display = "none";
+            console.log("Failed");
+        });
+    })
 
     // ****************************************
     // Retrieve a inventory

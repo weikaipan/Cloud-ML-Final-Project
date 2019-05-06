@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 from train.configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
+# from configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
 
 class BaseLine(nn.Module):
     # This is our baseline model.
@@ -46,7 +47,6 @@ class BaseLine(nn.Module):
         return out
 
 class RNN(nn.Module):
-    # This is our baseline model.
     def __init__(self,
                  vocab_size,
                  hidden_size,

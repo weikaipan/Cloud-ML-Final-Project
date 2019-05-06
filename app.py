@@ -1,11 +1,19 @@
-from flask import Flask, jsonify, request,make_response
-import os
+from flask import Flask, jsonify, request, make_response
 from settings import APP_STATIC,APP_ROOT
+from train.train import *
+from train.test import deploy_model
+
+import os
 import contextlib
 import subprocess
-from train.train import *
+
 
 app = Flask(__name__)
+
+# TODO:
+#    Read all vocabularies while starting the server.
+#    Create a route for testing user inputs.
+
 
 @app.route('/')
 def default_route():
@@ -42,6 +50,10 @@ def showLogs():
         f.close()
     return jsonify(content)
 
+@app.route('/test', methods=['GET'])
+def test():
+    ret = { 'sentiment': deploy_model() }
+    return jsonify(ret)
 
 
 if __name__ == '__main__':
