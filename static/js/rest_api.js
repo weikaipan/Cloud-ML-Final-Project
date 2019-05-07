@@ -18,6 +18,11 @@ $(function () {
             console.log(res);
             document.getElementById('score-loader').style.display = "none";
             document.getElementById('text-loader').style.display = "none";
+            let sent = "Positive! Have a gread day!";
+            if (res.sentiment < 0.5) {
+                sent = "Uh oh! Negative, Good luck!";
+            }
+            $('#sentiment').text(sent);
             $('#score').text(res.sentiment);
         });
 
@@ -29,29 +34,57 @@ $(function () {
     })
 
     $("#train-btn").click(function () {
-        var id = $("#model").val();
-        console.log(id)
-        console.log("print training model id")
+        // var id = $("#model").val();
+        // console.log(id)
+        // console.log("print training model id")
 
-        var urlString = "/train";
-        var data = {
-            "id": parseInt(id,10),
-        };
+        // var urlString = "/train";
+        // var data = {
+        //     "id": parseInt(id,10),
+        // };
 
-        var ajax = $.ajax({
-                type: "POST",
-                url: urlString,
-                contentType:"application/json",
-                data: JSON.stringify(data)
-            });
-
-        ajax.done(function(res){
-        });
-
-        ajax.fail(function(res){
-            console.log(res);
+        $.ajax({
+            type: 'POST',
+            url: '/train',
+            success: function(data, status, request) {
+                status_url = request.getResponseHeader('Location');
+                console.log(status_url);
+                $('#task-id').val(status_url);
+                fetchLogs(status_url);
+            },
+            error: function() {
+                alert('Unexpected error');
+            }
         });
     });
+
+    $('#refresh-btn').click(function () {
+        $.ajax({
+            type: 'GET',
+            url: $('#task-id').val(),
+            success: function (data) {
+                console.log(data);
+            },
+            error: function () {
+                alert('Unexpected error');
+            }
+        });
+    });
+
+    function fetchLogs(status_url) {
+        // send GET request to status URL
+        $.getJSON(status_url, function(data) {
+            // update UI
+            if (data['test']) {
+                console.log(data['test']);
+                $('#log-area').append('<p>' + data['test'] + '</p>');
+            } else if (data['train']) {
+                $('#log-area').append('<p>' + data['train'] + '</p>');
+            } else {
+                console.log(data);
+            }
+        });
+    }
 
     // ****************************************
     // Clear the form

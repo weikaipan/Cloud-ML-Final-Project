@@ -20,6 +20,8 @@ from train.model import RNN, BaseLine, CNN
 from pprint import pprint
 from train.utils import epoch_time
 
+# from app import celery
+
 # from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
 # from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
 # from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
@@ -27,6 +29,11 @@ from train.utils import epoch_time
 # from model import RNN, BaseLine, CNN
 # from pprint import pprint
 # from utils import epoch_time
+from celery import Celery
+from app import app
+# Initialize Celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 def binary_accuracy(preds, y):
     """
@@ -117,7 +124,9 @@ def train(model, iterator, optimizer, criterion, stop=False, packed=False):
 
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
-def main(embedding_size=EMBEDDING_SIZE,
+@celery.task(bind=True)
+def main(self,
+         embedding_size=EMBEDDING_SIZE,
          n_filters=CNN_N_FILTERS,
          learning_rate=LR,
          batch_size=BATCH_SIZE,
@@ -133,8 +142,11 @@ def main(embedding_size=EMBEDDING_SIZE,
          stop=False,
          packed=False,
          max_vocab_size=MAX_VOCAB_SIZE):
-
     """Main train driver."""
+
+    self.update_state(state='READING',
+                      meta={ 'INFO': 'READING DATA' })
+
     train_data, valid_data, test_data, text, label = readdata(packed=packed,
                                                               pretrain=pretrain,
                                                               max_vocab_size=max_vocab_size)
@@ -166,8 +178,11 @@ def main(embedding_size=EMBEDDING_SIZE,
     # Training
     best_valid_loss = float('inf')
 
+    self.update_state(state='TRAIN',
+                      meta={ 'INFO': 'START TRAINING' })
+    training_result = { 'Epoch': 'Pending', 'Train': 'Pending', 'Val': 'Pending'}
     for epoch in range(epoch):
-
+        
         start_time = time.time()
 
         train_loss, train_acc = train(model, train_iterator, optimizer, criterion, stop=stop, packed=packed)
@@ -185,12 +200,23 @@ def main(embedding_size=EMBEDDING_SIZE,
         print('Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs))
         print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100))
         print('Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100))
+        training_result = { 'Epoch': 'Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs),
+                            'Train': 'Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100),
+                            'Val': 'Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100)}
+        
+        self.update_state(state='PROGRESS',
+                          meta=training_result)
 
         if stop:
-            break
+            return training_result
 
     test_loss, test_acc = test(model, test_iterator, criterion, stop=stop, packed=packed)
     print("Finished Training")
+    training_result = { 'Epoch': 'Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs),
+                        'Test': 'Test Acc: {}%'.format(train_acc * 100)}
+    self.update_state(state='END',
+                      meta=training_result)
+    return training_result
 
 def parse_argument():
     """Hyperparmeter tuning."""
@@ -279,4 +305,4 @@ def print_settings(args):
 if __name__ == '__main__':
     args = parse_argument()
     print_settings(args)
-    main(**vars(args))
+    result = main(**vars(args))
