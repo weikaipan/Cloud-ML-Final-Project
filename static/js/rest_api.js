@@ -81,8 +81,8 @@ $(function () {
                 if (data.state === 'PENDING') {
                     $('#termynal').append('<span data-ty>Your task is pending...</span>');                    
                 }
-                if (data.reading) {
-                    $('#termynal').append('<span data-ty>' + data.reading + '</span>');
+                if (data.reading && $('.read-data') === null) {
+                    $('#termynal').append('<span class="read-data" data-ty>' + data.reading + '</span>');
                 }
                 if (data.epoch) {
                     $('#termynal').append('<span data-ty>' + data.epoch + '</span>');
