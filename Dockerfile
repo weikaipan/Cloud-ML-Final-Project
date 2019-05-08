@@ -12,9 +12,9 @@ RUN python -m spacy download en
 ADD train train
 ADD static static
 ADD app.py app.py
+ADD config.py config.py
 ADD settings.py settings.py
 RUN mkdir /cloudfinal/models
-
 ENV RESULT_DIR='/cloudfinal'
 
 EXPOSE 8000
