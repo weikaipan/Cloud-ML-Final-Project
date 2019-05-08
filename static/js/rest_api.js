@@ -75,13 +75,30 @@ $(function () {
         // send GET request to status URL
         $.getJSON(status_url, function(data) {
             // update UI
-            if (data['test']) {
-                console.log(data['test']);
-                $('#log-area').append('<p>' + data['test'] + '</p>');
-            } else if (data['train']) {
-                $('#log-area').append('<p>' + data['train'] + '</p>');
+            if (data.verbose) {
+                if (data.state === 'PENDING') {
+                    $('#termynal').append('<span data-ty>Your task is pending...</span>');                    
+                }
+                if (data.reading) {
+                    $('#termynal').append('<span data-ty>' + data.reading + '</span>');
+                }
+                if (data.epoch) {
+                    $('#termynal').append('<span data-ty>' + data.epoch + '</span>');
+                }
+                if (data.train) {
+                    $('#termynal').append('<span data-ty>' + data.train + '</span>');
+                }
+                if (data.val) {
+                    $('#termynal').append('<span data-ty>' + data.val + '</span>');
+                }
+                if (data.test) {
+                    $('#termynal').append('<span data-ty>' + data.test + '</span>');
+                }
+                setTimeout(function() {
+                    fetchLogs(status_url);
+                }, 2000);
             } else {
-                console.log(data);
+                $('#termynal').append('<p>Oops! Something wrong with our server, sorry!</p>');
             }
         });
     }

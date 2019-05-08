@@ -5,9 +5,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/termynal.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="static/css/style.css">
-    <script type="text/javascript" src = "static/js/jquery-3.1.1.min.js"></script>
+    <script src="static/js/termynal.js" data-termynal-container="#termynal"></script>
+    <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="static/js/rest_api.js"></script>
   </head>
   <body>
@@ -39,7 +41,7 @@
         </div>
         
         <div class="row">
-            <div class="col-md-8" id="form_data">
+            <div class="col-md-4" id="form_data">
                 <label>Select the Model Topology</label>
                 <div class="form-group row">
                     <div class="col-md-4">
@@ -76,10 +78,11 @@
                     <button type="submit" class="btn btn-primary" id="train-btn">Start Training</button>
                 </div>
             </div>
-            <div class="col-md-4 text-center">
+            <div class="col-md-8">
                 <button type="submit" class="btn btn-primary" id="refresh-btn">Refresh Logs</button>
                 <input type="hidden" id="task-id" value="">
-                <div id="log-area">
+                <div id="termynal" data-termynal>
+                    <span data-ty>Welcome to our ML service!</span>
                 </div>
             </div>
         </div>

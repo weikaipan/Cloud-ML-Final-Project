@@ -28,18 +28,17 @@ def model_status(task_id):
     from train.train import main
     print('in status task id is {}'.format(task_id))
     task = main.AsyncResult(task_id)
-    print(task.state)
-    print("Should be result")
-    print(task.get())
     if task.state == 'PENDING':
         # job did not start yet
         response = {
             'state': task.state,
-            'status': 'Pending...'
+            'status': 'Pending...',
+            'verbose': True
         }
     elif task.state != 'FAILURE':
         response = {
             'state': task.state,
+            'verbose': True
         }
         if task.state == 'READING':
             response['reading'] = task.info.get('INFO', 'none')
