@@ -208,12 +208,14 @@ def main(self,
                           meta=training_result)
 
         if stop:
+            training_result['Completed'] = True
             return training_result
 
     test_loss, test_acc = test(model, test_iterator, criterion, stop=stop, packed=packed)
     print("Finished Training")
     training_result = { 'Epoch': 'Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs),
-                        'Test': 'Test Acc: {}%'.format(train_acc * 100)}
+                        'Test': 'Test Acc: {}%'.format(train_acc * 100),
+                        'Completed': True}
     self.update_state(state='END',
                       meta=training_result)
     return training_result

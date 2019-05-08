@@ -75,7 +75,9 @@ $(function () {
         // send GET request to status URL
         $.getJSON(status_url, function(data) {
             // update UI
-            if (data.verbose) {
+            if (data.Completed) {
+                $('#termynal').append('<span data-ty>Your task is completed!</span>');
+            } else if (data.verbose) {
                 if (data.state === 'PENDING') {
                     $('#termynal').append('<span data-ty>Your task is pending...</span>');                    
                 }

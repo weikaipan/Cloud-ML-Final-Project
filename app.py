@@ -38,7 +38,8 @@ def model_status(task_id):
     elif task.state != 'FAILURE':
         response = {
             'state': task.state,
-            'verbose': True
+            'verbose': True,
+            'Completed': task.info.get('Completed', False)
         }
         if task.state == 'READING':
             response['reading'] = task.info.get('INFO', 'none')
