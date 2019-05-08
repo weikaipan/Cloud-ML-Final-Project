@@ -46,31 +46,31 @@
                 <div class="form-group row">
                     <div class="col-md-4">
                         <select class="form-control form-control-sm" id="model">
-                            <option selected value="1">Baseline</option>
-                            <option value="2">RNN</option>
-                            <option value="3">CNN</option>
+                            <option selected value="BASELINE">Baseline</option>
+                            <option value="RNN">RNN</option>
+                            <option value="CNN">CNN</option>
                         </select>         
                     </div>
                 </div>
                 <label>Embedding Size</label>
                 <div class="form-group row">
                     <div class="col-md-4">
-                        <input type="text" class="form-control-sm" id="embedding" placeholder="600" />
+                        <input type="text" class="form-control-sm" id="embedding" value="600" placeholder="600" />
                     </div>
                 </div>
                 <label>Learning Rate</label>
                 <div class="form-group row">
                     <div class="col-md-4">
-                        <input type="text" class="form-control-sm" id="lr" placeholder="0.01" />
+                        <input type="text" class="form-control-sm" id="lr" value="0.01" placeholder="0.01" />
                     </div>
                 </div>
                 <label>Optimizer</label>
                 <div class="form-group row">
                     <div class="col-md-4">
                         <select class="form-control form-control-sm" id="optim">
-                            <option selected value="1">Adagrad</option>
-                            <option value="2">Adam</option>
-                            <option value="3">SGD</option>
+                            <option selected value="Adagrad">Adagrad</option>
+                            <option value="Adam">Adam</option>
+                            <option value="SGD">SGD</option>
                         </select>
                     </div>
                 </div>
@@ -79,7 +79,8 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <button type="submit" class="btn btn-primary" id="refresh-btn">Refresh Logs</button>
+                <!-- <button type="submit" class="btn btn-primary" id="cancel-btn">Cancel Training</button> -->
+                <input type="hidden" id="task-url" value="">
                 <input type="hidden" id="task-id" value="">
                 <div id="termynal" data-termynal>
                     <span data-ty>Welcome to our ML service!</span>

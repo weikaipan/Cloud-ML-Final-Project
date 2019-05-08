@@ -15,52 +15,60 @@ app.config['CELERY_RESULT_BACKEND'] = CELERY_RESULT_BACKEND
 
 @app.route('/train', methods=['POST'])
 def train_model():
+    print(request.json)
     from train.train import main
-    task = main.apply_async((), {'stop': True})
+
+    print(request.json['model'])
+    packed = False if request.json['model'] == 'BASELINE' else True
+    task = main.apply_async((), {'stop': True,
+                                 'packed': packed,
+                                 'embedding_size': request.json['embedding'],
+                                 'learning_rate': request.json['lr'],
+                                 'topology': request.json['model'],
+                                 'optim_option': request.json['optim']})
+
     print('Task id is {}'.format(task.id))
     response = jsonify()
     response.status_code = 202
     response.headers['location'] = url_for('model_status', task_id=task.id)
+    response.headers['task_id'] = task.id
     return response
+
+@app.route('/cancel/<task_id>', methods=['DELETE'])
+def cancel_task(task_id):
+    print("cancel")
+    print(task_id)
+    from celery.task.control import revoke
+    try:
+        revoke(task_id, terminate=True)
+        return jsonify({ 'success': 'cancel the task' })
+    except Exception as e:
+        print(e)
+        return jsonify({ 'fail': 'cancel fail' })
 
 @app.route('/log/<task_id>', methods=['GET'])
 def model_status(task_id):
     from train.train import main
     print('in status task id is {}'.format(task_id))
     task = main.AsyncResult(task_id)
+    print(task.state)
     if task.state == 'PENDING':
         # job did not start yet
         response = {
             'state': task.state,
             'status': 'Pending...',
-            'verbose': True
         }
     elif task.state != 'FAILURE':
         response = {
             'state': task.state,
-            'verbose': True,
-            'Completed': task.info.get('Completed', False)
+            'task': task.info
         }
-        if task.state == 'READING':
-            response['reading'] = task.info.get('INFO', 'none')
-        elif task.state == 'TRAIN':
-            response['train'] = task.info.get('INFO', 'none')
-        elif task.state == 'PROGRESS':
-            response['epoch'] = task.info.get('Epoch', 'none')
-            response['train'] = task.info.get('Train', 'none')
-            response['val'] = task.info.get('Val', 'none')
-        elif task.state == 'END':
-            response['test'] = task.info.get('Test', 'none')
-        else:
-            response['success'] = 'RUNNING'
-            print(task.info)
-            response['epoch'] = task.info.get('Epoch', 'none')
-            response['train'] = task.info.get('Train', 'none')
     else:
         # something went wrong in the background job
         response = {
             'state': task.state,
             'status': str(task.info),  # this is the exception raised
+            'error': True
         }
     print(response)
     return jsonify(response)
@@ -76,41 +84,6 @@ def tasks():
 @app.route('/product')
 def product():
     return app.send_static_file('product.html')
-
-@app.route('/logs2', methods=['GET'])
-def showLogs2():
-    with open(os.path.join(APP_STATIC, 'dummyFile')) as f:
-        content=f.read()
-        f.close()
-    return jsonify(content)
-
-# @app.route('/train', methods=['POST'])
-# def startTraining():
-#     req=request.get_json()
-#     modelMapping={1:"BASELINE",2:"RNN",3:"CNN"}
-#     if req["id"] not in modelMapping:
-#       return make_response('You need to select a model', 405)
-
-#     with open('training.log','w') as f:
-#         with contextlib.redirect_stdout(f):
-#             main(stop=True,topology=modelMapping[req["id"]])
-#     # fwrite = open("blah.txt", "w")
-#     # subprocess.call(["python", "train/train.py", "-stop", "True", "-topology","BASELINE"],stdout=fwrite)
-#     return jsonify('')
-
-# @app.route('/logs', methods=['GET'])
-# def showLogs():
-#     # fwrite = open("blah.txt", "w")
-#     # subprocess.call(["python", "train/train.py", "-stop", "True", "-topology","BASELINE"],stdout=fwrite)
-
-#     with open(os.path.join(APP_ROOT, 'training.log')) as f:
-#         content=f.read()
-#         f.close()
-#     return jsonify(content)
-
-# @app.route('/logs/periodic-get', methods=['GET'])
-# def get_logs():
-
 
 @app.route('/test', methods=['GET'])
 def test():

@@ -145,7 +145,16 @@ def main(self,
     """Main train driver."""
 
     self.update_state(state='READING',
-                      meta={ 'INFO': 'READING DATA' })
+                      meta={ 'INFO': 'READING DATA',
+                             'embed': embedding_size,
+                             'learning_rate': learning_rate,
+                             'batch': batch_size,
+                             'epoch': epoch,
+                             'layer': layer_depth,
+                             'optim': optim_option,
+                             'model': topology,
+                             'packed': packed,
+                             'maxvocab': max_vocab_size })
 
     train_data, valid_data, test_data, text, label = readdata(packed=packed,
                                                               pretrain=pretrain,
@@ -178,7 +187,7 @@ def main(self,
     # Training
     best_valid_loss = float('inf')
 
-    self.update_state(state='TRAIN',
+    self.update_state(state='START',
                       meta={ 'INFO': 'START TRAINING' })
     training_result = { 'Epoch': 'Pending', 'Train': 'Pending', 'Val': 'Pending'}
     for epoch in range(epoch):
@@ -204,20 +213,22 @@ def main(self,
                             'Train': 'Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100),
                             'Val': 'Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100)}
         
-        self.update_state(state='PROGRESS',
-                          meta=training_result)
+        
 
         if stop:
-            training_result['Completed'] = True
+            self.update_state(state='END',
+                              meta=training_result)
             return training_result
+        else:
+            self.update_state(state='PROGRESS',
+                              meta=training_result)
 
     test_loss, test_acc = test(model, test_iterator, criterion, stop=stop, packed=packed)
     print("Finished Training")
     training_result = { 'Epoch': 'Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs),
                         'Test': 'Test Acc: {}%'.format(train_acc * 100),
                         'Completed': True}
-    self.update_state(state='END',
-                      meta=training_result)
+
     return training_result
 
 def parse_argument():

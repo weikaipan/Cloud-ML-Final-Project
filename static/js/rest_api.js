@@ -18,15 +18,15 @@ $(function () {
             console.log(res);
             document.getElementById('score-loader').style.display = "none";
             document.getElementById('text-loader').style.display = "none";
-            let sent = "Positive! Have a gread day!";
+            let sent = "Positive! Have a gread day! 😀";
             if (res.sentiment < 0.5) {
-                sent = "Uh oh! Negative, Good luck!";
+                sent = "Uh oh! Negative, Good luck! 😭";
             }
             $('#sentiment').text(sent);
             $('#score').text(res.sentiment);
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res){
             document.getElementById('score-loader').style.display = "none";
             document.getElementById('text-loader').style.display = "none";
             console.log("Failed");
@@ -34,22 +34,28 @@ $(function () {
     })
 
     $("#train-btn").click(function () {
-        // var id = $("#model").val();
-        // console.log(id)
-        // console.log("print training model id")
-
-        // var urlString = "/train";
-        // var data = {
-        //     "id": parseInt(id,10),
-        // };
+        let embedding = parseInt($('#embedding').val()),
+            lr = parseFloat($('#lr').val()),
+            optim = $('#optim').val(),
+            model = $('#model').val();
+        let data = {
+            'embedding': embedding,
+            'lr': lr,
+            'optim': optim,
+            'model': model
+        };
 
         $.ajax({
             type: 'POST',
             url: '/train',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
             success: function(data, status, request) {
-                status_url = request.getResponseHeader('Location');
+                const status_url = request.getResponseHeader('Location');
+                const task_id = request.getResponseHeader('task_id');
                 console.log(status_url);
-                $('#task-id').val(status_url);
+                $('#task-url').val(status_url);
+                $('#task-id').val(task_id);
                 fetchLogs(status_url);
             },
             error: function() {
@@ -58,10 +64,12 @@ $(function () {
         });
     });
 
-    $('#refresh-btn').click(function () {
+    $('#cancel-btn').click(function () {
+        let task = $('#task-id').val();
+        console.log(task);
         $.ajax({
-            type: 'GET',
-            url: $('#task-id').val(),
+            type: 'DELETE',
+            url: '/cancel/' + task,
             success: function (data) {
                 console.log(data);
             },
@@ -75,69 +83,67 @@ $(function () {
         // send GET request to status URL
         $.getJSON(status_url, function(data) {
             // update UI
-            if (data.Completed) {
-                $('#termynal').append('<span data-ty>Your task is completed!</span>');
-            } else if (data.verbose) {
-                if (data.state === 'PENDING') {
-                    $('#termynal').append('<span data-ty>Your task is pending...</span>');                    
-                }
-                if (data.reading && $('.read-data') === null) {
-                    $('#termynal').append('<span class="read-data" data-ty>' + data.reading + '</span>');
-                }
-                if (data.epoch) {
-                    $('#termynal').append('<span data-ty>' + data.epoch + '</span>');
-                }
-                if (data.train) {
-                    $('#termynal').append('<span data-ty>' + data.train + '</span>');
-                }
-                if (data.val) {
-                    $('#termynal').append('<span data-ty>' + data.val + '</span>');
-                }
-                if (data.test) {
-                    $('#termynal').append('<span data-ty>' + data.test + '</span>');
-                }
-                setTimeout(function() {
-                    fetchLogs(status_url);
-                }, 2000);
+
+            if (data.error) {
+                $('#termynal').append('<p>Oops! Something wrong with our server, sorry!</p>');    
             } else {
-                $('#termynal').append('<p>Oops! Something wrong with our server, sorry!</p>');
+                if (data.state === 'PENDING') {
+                    if (document.querySelector('#pending') === null) {
+                        $('#termynal').append('<span data-ty id="pending">Your task is pending...</span>');                    
+                    }
+                    setTimeout(function() {
+                        fetchLogs(status_url);
+                    }, 2000);
+                } else {
+                    if (data.state === 'READING') {
+                        if (document.querySelector('#read-data') === null) {
+                            let configs = 'Parameters Settings';
+                            configs += '<span data-ty>================================</span>';
+                            for (let key in data.task) {
+                                if (key !== 'INFO') {
+                                    configs += '<span data-ty>' + key + '=' + data.task[key] + '</span>';
+                                }
+                            }
+                            configs += '<span data-ty>================================</span>';
+                            configs += '<span data-ty id="read-data">' + data.task.INFO + '</span>';
+                            $('#termynal').append(configs);
+                        }
+                        setTimeout(function() {
+                            fetchLogs(status_url);
+                        }, 2000);
+                    } else if (data.state === 'START') {
+                        if (document.querySelector('#start') === null) {
+                            $('#termynal').append('<span data-ty id="start">START TRAINING</span>');
+                        }
+                        setTimeout(function() {
+                            fetchLogs(status_url);
+                        }, 2000);
+                    } else if (data.state === 'END' || data.state === 'PROGRESS') {
+                        $('#termynal').append('<span data-ty>' + data.task.Epoch + '</span>');
+                        $('#termynal').append('<span data-ty>' + data.task.Train + '</span>');
+                        $('#termynal').append('<span data-ty>' + data.task.Val + '</span>');
+
+                        if (data.state === 'END') {
+                            $('#termynal').append('<span data-ty>Your task is completed!</span>');
+                        } else {
+                            // PROGRESS, continue fetching log
+                            setTimeout(function() {
+                                fetchLogs(status_url);
+                            }, 2000);
+                        }
+                    } else if (data.state === 'SUCCESS') {
+                        if (data.task.Completed) {
+                            $('#termynal').append('<span data-ty>' + data.task.Epoch + '</span>');
+                            $('#termynal').append('<span data-ty>' + data.task.Test + '</span>');
+                        } else {
+                            $('#termynal').append('<span data-ty>' + data.task.Epoch + '</span>');
+                            $('#termynal').append('<span data-ty>' + data.task.Train + '</span>');
+                            $('#termynal').append('<span data-ty>' + data.task.Val + '</span>');
+                        }
+                    }
+                }
             }
         });
     }
-
-    // ****************************************
-    // Clear the form
-    // ****************************************
-
-    $("#clear-btn").click(function () {
-        $("#inventory_id").val("");
-        clear_form_data()
-    });
-
-
-    // ****************************************
-    // Search for a inventory
-    // ****************************************
-
-    $("#search-btn").click(function () {
-
-        var urlString = "/logs";
-
-        var ajax = $.ajax({
-            type: "GET",
-            url: urlString
-        });
-
-        ajax.done(function(res){
-            $("#search_results").empty();
-            $("#search_results").append('<div>');
-            $("#search_results").append('<text>' + res + "</text>");
-            $("#search_results").append('</div>');
-        });
-
-        ajax.fail(function(res){
-        });
-
-    });
 
 })

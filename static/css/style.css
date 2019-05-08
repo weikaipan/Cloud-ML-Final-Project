@@ -23,6 +23,7 @@
 
 #text-loader {
   display: none;
+  text-align: center;
 }
 
 @keyframes spin {
