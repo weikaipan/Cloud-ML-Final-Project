@@ -10,7 +10,14 @@ docker run cloudfinal python train/train.py -stop True -topology BASELINE
 
 ## Deployment
 
-- Deploy to minikube
+- Deploy with docker compose
+
+```
+docker-compose build
+docker-compose up
+```
+
+- Deploy with kubernetes on minikube
 
 ```
 minikube start
@@ -25,10 +32,10 @@ minikube service flaskapp-service
   This command will open your browser and go to the flask webapp
 ```
 
-- Deploy to IBM cloud
+- Deploy with kubernetes on IBM cloud
 
 ```
-change NodePort from deploy/kubernetes/flaskapp/service.yaml to ClusterIP
+change NodePort from deploy/kubernetes/flaskapp/service.yaml to LoadBalancer
 ibmcloud ks cluster-config yourclustername
 export KUBECONFIG=
 kubectl cluster-info
