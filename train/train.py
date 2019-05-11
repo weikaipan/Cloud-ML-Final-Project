@@ -12,28 +12,28 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch import optim
 from torchtext import data
-from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
-from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
-from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
-from train.dataprepare import readdata
-from train.model import RNN, BaseLine, CNN
-from pprint import pprint
-from train.utils import epoch_time
+# from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
+# from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+# from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
+# from train.dataprepare import readdata
+# from train.model import RNN, BaseLine, CNN
+# from pprint import pprint
+# from train.utils import epoch_time
 
 # from app import celery
 
-# from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
-# from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
-# from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
-# from dataprepare import readdata
-# from model import RNN, BaseLine, CNN
-# from pprint import pprint
-# from utils import epoch_time
-from celery import Celery
-from app import app
+from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS, HIDDEN_DIM, OUTPUT_DIM, DROPOUT
+from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM, BIDIRECTIONAL
+from dataprepare import readdata
+from model import RNN, BaseLine, CNN
+from pprint import pprint
+from utils import epoch_time
+# from celery import Celery
+# from app import app
 # Initialize Celery
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+# celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+# celery.conf.update(app.config)
 
 def binary_accuracy(preds, y):
     """
@@ -55,8 +55,8 @@ def pick_optimizer(optim_option, parameters, learning_rate):
     else:
         return optim.SGD(parameters, lr=learning_rate)
 
-def test(model, test_iterator, criterion, stop=False, packed=False):
-    model.load_state_dict(torch.load(OUTPUT_FILE + '/tut1-model.pt'))
+def test(model, test_iterator, criterion, topology, stop=False, packed=False):
+    model.load_state_dict(torch.load(OUTPUT_FILE + '/RNN_lstm_nopretrain.pt'))
 
     test_loss, test_acc = evaluate(model, test_iterator, criterion, stop=stop, packed=packed)
     print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc * 100))
@@ -124,9 +124,9 @@ def train(model, iterator, optimizer, criterion, stop=False, packed=False):
 
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
-@celery.task(bind=True)
-def main(self,
-         embedding_size=EMBEDDING_SIZE,
+# @celery.task(bind=True)
+def main(embedding_size=EMBEDDING_SIZE,
+         hidden_size=HIDDEN_DIM,
          n_filters=CNN_N_FILTERS,
          learning_rate=LR,
          batch_size=BATCH_SIZE,
@@ -144,17 +144,17 @@ def main(self,
          max_vocab_size=MAX_VOCAB_SIZE):
     """Main train driver."""
 
-    self.update_state(state='READING',
-                      meta={ 'INFO': 'READING DATA',
-                             'embed': embedding_size,
-                             'learning_rate': learning_rate,
-                             'batch': batch_size,
-                             'epoch': epoch,
-                             'layer': layer_depth,
-                             'optim': optim_option,
-                             'model': topology,
-                             'packed': packed,
-                             'maxvocab': max_vocab_size })
+    # self.update_state(state='READING',
+    #                   meta={ 'INFO': 'READING DATA',
+    #                          'embed': embedding_size,
+    #                          'learning_rate': learning_rate,
+    #                          'batch': batch_size,
+    #                          'epoch': epoch,
+    #                          'layer': layer_depth,
+    #                          'optim': optim_option,
+    #                          'model': topology,
+    #                          'packed': packed,
+    #                          'maxvocab': max_vocab_size })
 
     train_data, valid_data, test_data, text, label = readdata(packed=packed,
                                                               pretrain=pretrain,
@@ -175,7 +175,15 @@ def main(self,
     elif topology == 'CNN':
         model = CNN(len(text.vocab), [3,4,5], topology=topology)
     else:
-        model = RNN(len(text.vocab), embedding_size, embedding_size, 1, topology=topology)
+        model = RNN(len(text.vocab),
+                    hidden_size,
+                    embedding_dim=EMBEDDING_SIZE,
+                    n_layers=LAYER_DEPTH,
+                    bidirectional=BIDIRECTIONAL,
+                    dropout=DROPOUT,
+                    # pad_idx=PAD_IDX,
+                    output_dim=OUTPUT_DIM,
+                    topology=topology)
 
     model = model.to(device)
     # Criterion
@@ -187,11 +195,11 @@ def main(self,
     # Training
     best_valid_loss = float('inf')
 
-    self.update_state(state='START',
-                      meta={ 'INFO': 'START TRAINING' })
+    # self.update_state(state='START',
+    #                   meta={ 'INFO': 'START TRAINING' })
     training_result = { 'Epoch': 'Pending', 'Train': 'Pending', 'Val': 'Pending'}
     for epoch in range(epoch):
-        
+
         start_time = time.time()
 
         train_loss, train_acc = train(model, train_iterator, optimizer, criterion, stop=stop, packed=packed)
@@ -204,7 +212,7 @@ def main(self,
 
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss
-            torch.save(model.state_dict(), OUTPUT_FILE + '/tut1-model.pt')
+            torch.save(model.state_dict(), OUTPUT_FILE + '/RNN_lstm_nopretrain.pt')
 
         print('Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs))
         print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100))
@@ -212,18 +220,18 @@ def main(self,
         training_result = { 'Epoch': 'Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs),
                             'Train': 'Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100),
                             'Val': 'Val. Loss: {} |  Val. Acc: {}%'.format(valid_loss, valid_acc * 100)}
-        
-        
 
-        if stop:
-            self.update_state(state='END',
-                              meta=training_result)
-            return training_result
-        else:
-            self.update_state(state='PROGRESS',
-                              meta=training_result)
 
-    test_loss, test_acc = test(model, test_iterator, criterion, stop=stop, packed=packed)
+
+        # if stop:
+        #     self.update_state(state='END',
+        #                       meta=training_result)
+        #     return training_result
+        # else:
+        #     self.update_state(state='PROGRESS',
+        #                       meta=training_result)
+
+    test_loss, test_acc = test(model, test_iterator, criterion, topology=topology, stop=stop, packed=packed)
     print("Finished Training")
     training_result = { 'Epoch': 'Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs),
                         'Test': 'Test Acc: {}%'.format(train_acc * 100),
