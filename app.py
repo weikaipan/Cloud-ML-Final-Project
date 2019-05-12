@@ -16,16 +16,11 @@ app.config['CELERY_RESULT_BACKEND'] = CELERY_RESULT_BACKEND
 @app.route('/train', methods=['POST'])
 def train_model():
     print(request.json)
-    from train.train import main
+    from kubernetes_jobs import main
 
     print(request.json['model'])
-    packed = False if request.json['model'] == 'BASELINE' else True
-    task = main.apply_async((), {'stop': True,
-                                 'packed': packed,
-                                 'embedding_size': request.json['embedding'],
-                                 'learning_rate': request.json['lr'],
-                                 'topology': request.json['model'],
-                                 'optim_option': request.json['optim']})
+    # packed = False if request.json['model'] == 'BASELINE' else True
+    task = main.apply_async(countdown=1)
 
     print('Task id is {}'.format(task.id))
     response = jsonify()
@@ -33,6 +28,8 @@ def train_model():
     response.headers['location'] = url_for('model_status', task_id=task.id)
     response.headers['task_id'] = task.id
     return response
+
+
 
 @app.route('/cancel/<task_id>', methods=['DELETE'])
 def cancel_task(task_id):

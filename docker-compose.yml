@@ -12,7 +12,7 @@ services:
       - redis-service
   celery:
     build: .
-    command: celery worker -A train.train.celery --loglevel=info
+    command: celery worker -A kubernetes_jobs.celery --loglevel=info
     depends_on:
       - redis-service
 

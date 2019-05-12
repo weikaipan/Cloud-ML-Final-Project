@@ -9,11 +9,13 @@ ADD requirements.txt  requirements.txt
 RUN pip install -r requirements.txt
 RUN python -m spacy download en
 
-ADD train train
-ADD static static
-ADD app.py app.py
-ADD config.py config.py
-ADD settings.py settings.py
+COPY train train
+COPY static static
+COPY app.py app.py
+COPY config.py config.py
+COPY settings.py settings.py
+COPY kubernetes_jobs.py kubernetes_jobs.py
+COPY deploy deploy
 RUN mkdir /cloudfinal/models
 ENV RESULT_DIR='/cloudfinal'
 
