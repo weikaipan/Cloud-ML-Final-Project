@@ -34,3 +34,7 @@
 #termynal {
   overflow: scroll;
 }
+
+#re-train {
+  display: none;
+}

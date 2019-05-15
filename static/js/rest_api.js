@@ -49,6 +49,8 @@ $(function () {
             'epoch': epoch
         };
 
+        console.log(data)
+
         $.ajax({
             type: 'POST',
             url: '/train',
@@ -111,6 +113,9 @@ $(function () {
         
                             if (data.state === 'END') {
                                 $('#termynal').prepend('<span data-ty>Your task is completed!</span>');
+                                document.getElementById('form_data').style.display = 'none';
+                                document.getElementById('re-train').style.display = 'inline-block';
+                                document.getElementById('re-train-link').style.display = 'inline-block';
                             } else {
                                 // PROGRESS, continue fetching log
                                 setTimeout(function() {
@@ -126,6 +131,9 @@ $(function () {
                                 $('#termynal').prepend('<span data-ty>' + data.task.Train + '</span>');
                                 $('#termynal').prepend('<span data-ty>' + data.task.Val + '</span>');
                             }
+                            document.getElementById('form_data').style.display = 'none';
+                            document.getElementById('re-train').style.display = 'inline-block';
+                            document.getElementById('re-train-link').style.display = 'inline-block';
                         }
                     }
                 }

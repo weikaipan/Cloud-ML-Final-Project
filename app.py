@@ -23,11 +23,9 @@ def train_model():
     print(request.json)
     from train.train import main
 
-    packed = False if request.json['model'] == 'BASELINE' else True
-    # if train_data is None or valid_data is None or test_data is None or text is None or label is None:
-    #     train_data, valid_data, test_data, text, label = readdata(packed=packed,
-    #                                                               pretrain=PRETRAIN,
-    #                                                               max_vocab_size=MAX_VOCAB_SIZE)
+    packed = True if request.json['model'] == 'RNN' else False
+
+    print(request.json)
 
     task = main.apply_async((), {'stop': True,
                                  'packed': packed,
