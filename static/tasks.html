@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Machine Learning Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/termynal.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/termynal.js" data-termynal-container="#termynal"></script>
+    <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="static/js/rest_api.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">
+                    <div class="page-header">
+                        Machine Learning Service
+                    </div>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/tasks">Tasks</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/product">Get Sentiment</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <div class="row">
+          <div class="col-md-12 text-center box">
+              <a class="nav-link" href="/">Back to Home Page</a>
+          </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4" id="form_data">
+                <label>Select the Model Topology</label>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <select class="form-control form-control-sm" id="model">
+                            <option selected value="BASELINE">Baseline</option>
+                            <option value="RNN">RNN</option>
+                            <option value="CNN">CNN</option>
+                        </select>         
+                    </div>
+                </div>
+                <label>Embedding Size</label>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control-sm" id="embedding" value="600" placeholder="600" />
+                    </div>
+                </div>
+                <label>Learning Rate</label>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control-sm" id="lr" value="0.01" placeholder="0.01" />
+                    </div>
+                </div>
+                <label>Optimizer</label>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <select class="form-control form-control-sm" id="optim">
+                            <option selected value="Adagrad">Adagrad</option>
+                            <option value="Adam">Adam</option>
+                            <option value="SGD">SGD</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="train-btn">Start Training</button>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!-- <button type="submit" class="btn btn-primary" id="cancel-btn">Cancel Training</button> -->
+                <input type="hidden" id="task-url" value="">
+                <input type="hidden" id="task-id" value="">
+                <div id="termynal" data-termynal>
+                    <span data-ty>Welcome to our ML service!</span>
+                </div>
+            </div>
+        </div>
+        <footer>
+          <br><br>
+          <p>&copy; Cloud and Machine Learning Final Project 2019</p>
+        </footer>
+        </div><!--/span-->
+     </div><!--/row-->
+
+  </div><!-- container -->
+  </body>
+</html>
