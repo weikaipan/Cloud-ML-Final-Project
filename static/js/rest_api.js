@@ -1,16 +1,27 @@
 $(function () {
 
     $("#sentence-btn").click(function () {
+        if ($('#sentiment').text() !== "") {
+            $('#sentiment').text("");
+        }
+        
+        if ($('#score').text() !== "") {
+            $('#score').text("");
+        }
+        
         console.log(document.getElementById('score-loader'));
-        document.getElementById('score-loader').style.display = "block";
-        document.getElementById('text-loader').style.display = "block";
-
-        let sentence = $('#sentence').val();
+        document.getElementById('score-loader').style.display = "inline-block";
+        document.getElementById('text-loader').style.display = "inline-block";
+        
+        const sentence = $('#sentence').val();
+        const topology = $('#topology').val();
+        console.log(topology);
 
         let ajax = $.get({
             url: "/test",
             data: {
                 "sentence": sentence,
+                "topology": topology
             }
         });
 
@@ -23,7 +34,7 @@ $(function () {
                 sent = "Uh oh! Negative, Good luck! 😭";
             }
             $('#sentiment').text(sent);
-            $('#score').text(res.sentiment);
+            $('#score').text(res.sentiment.toFixed(2));
         });
 
         ajax.fail(function (res){
