@@ -13,7 +13,7 @@ from torch.autograd import Variable
 from torch import optim
 from torchtext import data
 from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
-from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH, HIDDEN_DIM
 from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
 from train.dataprepare import readdata
 from train.model import RNN, BaseLine, CNN
@@ -57,7 +57,7 @@ def pick_optimizer(optim_option, parameters, learning_rate):
         return optim.SGD(parameters, lr=learning_rate)
 
 def test(model, test_iterator, criterion, topology, stop=False, packed=False):
-    model.load_state_dict(torch.load(OUTPUT_FILE + '/CNN_nopretrain.pt'))
+    model.load_state_dict(torch.load(OUTPUT_FILE + '/RNN_lstm_nopretrain.pt'))
 
     test_loss, test_acc = evaluate(model, test_iterator, criterion, stop=stop, packed=packed)
     print('Test loss = {}, Test Acc = {}'.format(test_loss, test_acc * 100))
@@ -213,7 +213,7 @@ def main(embedding_size=EMBEDDING_SIZE,
 
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss
-            torch.save(model.state_dict(), OUTPUT_FILE + '/CNN_nopretrain.pt')
+            torch.save(model.state_dict(), OUTPUT_FILE + '/RNN_lstm_nopretrain.pt')
 
         print('Epoch: {} | Epoch Time: {}m {}s'.format(epoch, epoch_mins, epoch_secs))
         print('Train Loss: {} | Train Acc: {}%'.format(train_loss, train_acc * 100))
