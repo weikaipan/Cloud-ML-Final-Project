@@ -38,17 +38,52 @@
                 </div>
             </div>
     
+            <div class="form-group row">
+                <div class="col-md-12 text-center box">
+                    <label>Pick a Model</label>
+                    <select id="topology">
+                        <option value="cnn" selected>CNN</option>
+                        <option value="lstm">LSTM</option>
+                        <option value="rnn">RNN</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">                    
+                <div class="col-md-12 text-center">
+                    <textarea id="sentence"></textarea>
+                </div>
+            </div>
+
+            <div class="row">                    
+                <div class="col-md-12 text-center box">
+                    <button type="button" class="btn btn-primary" id="sentence-btn">Check Its Sentiment!</button>
+                </div>
+            </div>
+
+            <div class="row">                    
+                <div class="col-md-12 text-center">
+                    <div class="loader col-md-12 text-center" id="score-loader">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">                    
+                <div class="col-md-12 text-center box">
+                    <div id="text-loader">Hey, I am evaluating your review...</div>
+                </div>
+            </div>
+            
             <div class="row">
                 <div class="col-md-12 text-center box">
-                    <input type="text" name="sentence" id="sentence" />
-                    <button type="button" class="btn btn-primary" id="sentence-btn">Check Its Sentiment!</button>
-                    <div class="text-center">
-                        <div class="loader" id="score-loader">
-                        </div>
-                        <div id="text-loader">Hey, I am evaluating your text...</div>
-                        <h3 id="sentiment"></h3>
-                        <h3>Sentiment Score is: <p id="score"></p></h3>
-                    </div>
+                    <h3 id="sentiment"></h3>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 text-center box">
+                    <h3>Sentiment Score is: <p id="score"></p></h3>
                 </div>
             </div>
     

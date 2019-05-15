@@ -6,8 +6,8 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 # from train.configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
-from configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
-from configs import BIDIRECTIONAL, HIDDEN_DIM
+from train.configs import use_cuda, LAYER_DEPTH, DROPOUT, EMBEDDING_SIZE, OUTPUT_DIM, CNN_N_FILTERS
+from train.configs import BIDIRECTIONAL, HIDDEN_DIM
 
 class BaseLine(nn.Module):
     # This is our baseline model.

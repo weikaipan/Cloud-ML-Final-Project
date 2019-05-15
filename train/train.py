@@ -12,23 +12,24 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch import optim
 from torchtext import data
-# from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
-# from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
-# from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
-# from train.dataprepare import readdata
-# from train.model import RNN, BaseLine, CNN
-# from pprint import pprint
-# from train.utils import epoch_time
+from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS
+from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM
+from train.dataprepare import readdata
+from train.model import RNN, BaseLine, CNN
+from pprint import pprint
+from train.utils import epoch_time
 
 # from app import celery
 
-from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS, HIDDEN_DIM, OUTPUT_DIM, DROPOUT
-from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
-from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM, BIDIRECTIONAL
-from dataprepare import readdata
-from model import RNN, BaseLine, CNN
-from pprint import pprint
-from utils import epoch_time
+# from configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FILTERS, HIDDEN_DIM, OUTPUT_DIM, DROPOUT
+# from configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH
+# from configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM, BIDIRECTIONAL
+# from dataprepare import readdata
+# from model import RNN, BaseLine, CNN
+# from pprint import pprint
+# from utils import epoch_time
+
 # from celery import Celery
 # from app import app
 # Initialize Celery

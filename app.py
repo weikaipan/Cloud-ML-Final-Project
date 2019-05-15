@@ -91,7 +91,7 @@ def test():
     if request.args['sentence'] is None:
         ret = { 'sentiment': deploy_model() }
     else:
-        ret = { 'sentiment': deploy_model(sentence=request.args['sentence']) }
+        ret = { 'sentiment': deploy_model(sentence=request.args['sentence'], topology=request.args['topology']) }
     return jsonify(ret)
 
 
