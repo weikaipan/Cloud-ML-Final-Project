@@ -1,0 +1,26 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: flaskapp
+  labels:
+    deployment: flaskapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: flaskapp
+  template:
+    metadata:
+      labels:
+        pod: flaskapp
+    spec:
+      containers:
+        - name: flaskapp
+          image: makeapp007/cloud-ml-final-project_flaskapp:2345
+          imagePullPolicy: Always
+          command: ['gunicorn', '--workers=2', '--bind=0.0.0.0:8000', 'app:app', '--timeout=90']
+          ports:
+            - containerPort: 8000
+          env:
+            - name: REDIS_HOST
+              value: redis-service
