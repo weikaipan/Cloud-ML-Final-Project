@@ -8,6 +8,7 @@ from train.model import RNN, BaseLine
 from torch import optim
 from train.configs import BATCH_SIZE, EMBEDDING_SIZE, MAX_VOCAB_SIZE
 
+
 # from train import test
 # from dataprepare import readdata
 # from model import BaseLine, RNN

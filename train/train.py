@@ -141,7 +141,12 @@ def main(self,
          topology='BASELINE',
          stop=False,
          packed=False,
-         max_vocab_size=MAX_VOCAB_SIZE):
+         max_vocab_size=MAX_VOCAB_SIZE,
+         train_data=None,
+         valid_data=None,
+         test_data=None,
+         text=None,
+         label=None):
     """Main train driver."""
 
     self.update_state(state='READING',
@@ -156,6 +161,7 @@ def main(self,
                              'packed': packed,
                              'maxvocab': max_vocab_size })
 
+    # if  train_data is None or valid_data is None or test_data is None or text is None or label is None:
     train_data, valid_data, test_data, text, label = readdata(packed=packed,
                                                               pretrain=pretrain,
                                                               max_vocab_size=max_vocab_size)

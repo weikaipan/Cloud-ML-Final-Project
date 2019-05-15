@@ -1,6 +1,8 @@
-from flask import Flask, jsonify, request, make_response, url_for
+from flask import Flask, jsonify, request, make_response, url_for, render_template
 from settings import APP_STATIC,APP_ROOT
 from config import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
+from train.configs import MAX_VOCAB_SIZE, PRETRAIN
+from train.dataprepare import readdata
 
 import os
 import contextlib
@@ -8,24 +10,33 @@ import subprocess
 import random
 import time
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='static')
 
 app.config['CELERY_BROKER_URL'] = CELERY_BROKER_URL
 app.config['CELERY_RESULT_BACKEND'] = CELERY_RESULT_BACKEND
 
+train_data, valid_data, test_data, text, label = None, None, None, None, None
+
 @app.route('/train', methods=['POST'])
 def train_model():
+    global train_data, valid_data, test_data, text, label
     print(request.json)
     from train.train import main
 
-    print(request.json['model'])
     packed = False if request.json['model'] == 'BASELINE' else True
+    # if train_data is None or valid_data is None or test_data is None or text is None or label is None:
+    #     train_data, valid_data, test_data, text, label = readdata(packed=packed,
+    #                                                               pretrain=PRETRAIN,
+    #                                                               max_vocab_size=MAX_VOCAB_SIZE)
+
     task = main.apply_async((), {'stop': True,
                                  'packed': packed,
                                  'embedding_size': request.json['embedding'],
                                  'learning_rate': request.json['lr'],
                                  'topology': request.json['model'],
-                                 'optim_option': request.json['optim']})
+                                 'optim_option': request.json['optim'],
+                                 'batch_size': request.json['batch'],
+                                 'epoch': request.json['epoch']})
 
     print('Task id is {}'.format(task.id))
     response = jsonify()
