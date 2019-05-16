@@ -29,7 +29,7 @@ $(function () {
             console.log(res);
             document.getElementById('score-loader').style.display = "none";
             document.getElementById('text-loader').style.display = "none";
-            let sent = "Positive! Have a gread day! 😀";
+            let sent = "Positive! Have a great day! 😀";
             if (res.sentiment < 0.5) {
                 sent = "Uh oh! Negative, Good luck! 😭";
             }

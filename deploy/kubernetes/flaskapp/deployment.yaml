@@ -16,11 +16,19 @@ spec:
     spec:
       containers:
         - name: flaskapp
-          image: makeapp007/cloud-ml-final-project_flaskapp:2345
+          image: makeapp007/cloud-ml-final-project_flaskapp:2054
           imagePullPolicy: Always
-          command: ['gunicorn', '--workers=2', '--bind=0.0.0.0:8000', 'app:app', '--timeout=90']
+          command: ["gunicorn", "--workers=4", "--bind=0.0.0.0:8000", "app:app" ,"--timeout=30", "--log-level", "debug"]
           ports:
             - containerPort: 8000
           env:
             - name: REDIS_HOST
               value: redis-service
+          
+          volumeMounts:
+            - name: mypvc
+              mountPath: /cloudfinal/.vector_cache
+      volumes:
+        - name: mypvc
+          persistentVolumeClaim:
+            claimName: mypvc
