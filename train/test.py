@@ -31,6 +31,10 @@ def deploy_model(sentence="This film is terrible",
         packed = True
     else:
         packed = False
+    
+    print(topology)
+    print(packed)
+    print(pretrain)
 
     train_data, valid_data, test_data, text, label = readdata(packed=packed,
                                                               pretrain=pretrain,
@@ -69,7 +73,9 @@ def deploy_model(sentence="This film is terrible",
     length_tensor = torch.LongTensor(length)
     # prediction = torch.sigmoid(model(tensor, length_tensor))
     if packed:
-        prediction = torch.sigmoid(model(tensor, length))
+        print("packed sequence")
+        print(topology)
+        prediction = torch.sigmoid(model(tensor, length_tensor))
     else:
         prediction = torch.sigmoid(model(tensor))
     return prediction.item()
