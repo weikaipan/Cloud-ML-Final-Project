@@ -85,6 +85,9 @@ $(function () {
         
                 if (data.error) {
                     $('#termynal').prepend('<p>Oops! Something wrong with our server, sorry!</p>');    
+                    document.getElementById('form_data').style.display = 'none';
+                    document.getElementById('re-train').style.display = 'inline-block';
+                    document.getElementById('re-train-link').style.display = 'inline-block';
                 } else {
                     if (data.state === 'PENDING') {
                         if (document.querySelector('#pending') === null) {
