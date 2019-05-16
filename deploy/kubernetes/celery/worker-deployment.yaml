@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: celery-worker
-          image: makeapp007/cloud-ml-final-project_flaskapp:2345
+          image: makeapp007/cloud-ml-final-project_flaskapp:1409
           imagePullPolicy: Always
           command: ['celery', 'worker', '-A', 'train.train.celery', '--loglevel=info']
           env:
