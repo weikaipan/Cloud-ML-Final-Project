@@ -35,6 +35,10 @@
   100% { transform: rotate(360deg); }
 }
 
-.box {
-  /* border: 3px solid green; */
+#termynal {
+  overflow: scroll;
+}
+
+#re-train {
+  display: none;
 }

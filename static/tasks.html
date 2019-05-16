@@ -41,6 +41,9 @@
         </div>
         
         <div class="row">
+            <div class="col-md-4" id="re-train">
+                <a class="nav-link" href="/tasks" id="re-train-link">Train Your Next Model</a>
+            </div>
             <div class="col-md-4" id="form_data">
                 <label>Select the Model Topology</label>
                 <div class="form-group row">
@@ -50,6 +53,18 @@
                             <option value="RNN">RNN</option>
                             <option value="CNN">CNN</option>
                         </select>         
+                    </div>
+                </div>
+                <label>Batch Size</label>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control-sm" id="batch" value="32" placeholder="32" />
+                    </div>
+                </div>
+                <label>Epoch</label>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control-sm" id="epoch" value="1" placeholder="1" />
                     </div>
                 </div>
                 <label>Embedding Size</label>
@@ -78,7 +93,7 @@
                     <button type="submit" class="btn btn-primary" id="train-btn">Start Training</button>
                 </div>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-8" id="terminal-panel">
                 <!-- <button type="submit" class="btn btn-primary" id="cancel-btn">Cancel Training</button> -->
                 <input type="hidden" id="task-url" value="">
                 <input type="hidden" id="task-id" value="">
@@ -96,4 +111,4 @@
 
   </div><!-- container -->
   </body>
-</html>
+  </html>

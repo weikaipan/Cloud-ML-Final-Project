@@ -10,6 +10,7 @@ from train.configs import BATCH_SIZE, EMBEDDING_SIZE, LR, LAYER_DEPTH, CNN_N_FIL
 from train.configs import SAVE_MODEL, OUTPUT_FILE, GRAD_CLIP, EPOCH, MAX_VOCAB_SIZE, HIDDEN_DIM
 from train.configs import GET_LOSS, MAX_TRAIN_NUM, MAX_VOCAB_SIZE, PRETRAIN, OPTIM, BIDIRECTIONAL
 
+
 # from train import test
 # from dataprepare import readdata
 # from model import BaseLine, RNN
