@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  redis-service:
+    image: "redis:alpine"
+  flaskapp-service:
+    build: .
+    command: gunicorn --workers=2 --bind=0.0.0.0:8000 app:app --timeout=90
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis-service
+  celery:
+    build: .
+    command: celery worker -A train.train.celery --loglevel=info
+    depends_on:
+      - redis-service
+
